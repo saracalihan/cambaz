@@ -11,13 +11,28 @@ const ReservedComponentKeys = {
 
 class Component {
 	html: HTMLElement;
-	data: any
+	data: any = {};
 	constructor() {
 
 		// chech component has reserved keys
 
 		// this.html = this.render();
 		this.html = document.createElement('div');
+
+		this.data = new Proxy(this.data, {
+			get(target, key) {
+				return target[key]
+			},
+			set(target, key, value) {
+				target[key] = value;
+				console.log(arguments);
+
+				App.rerender();
+				return true
+			}
+		});
+
+
 	}
 
 	render() {
@@ -69,7 +84,7 @@ class Component {
 
 		propNames.forEach(prop => {
 			//@ts-ignore
-			code = code.replaceAll(`{{${prop}}}`, this[prop.trim()])
+			code = code.replaceAll(`{{${prop}}}`, this.data[prop.trim()])
 		});
 		return code;
 	}
@@ -80,18 +95,16 @@ class Component {
 };
 
 class AppComponent extends Component {
-	/**
-	 *
-	 */
+
 	constructor() {
 		super();
+		this.data.count = 25;
 	}
-	count = 31;
+
 
 	increseCount() {
 		console.log('increseCount girdi')
-		this.count++;
-		App.rerender()
+		this.data.count++;
 
 	}
 
@@ -122,7 +135,6 @@ class Home extends Component {
 	increseCount() {
 		console.log('increseCount girdi')
 		this.count++;
-		App.rerender()
 
 	}
 
@@ -151,7 +163,6 @@ class About extends Component {
 	increseCount() {
 		console.log('increseCount girdi')
 		this.count++;
-		App.rerender()
 
 	}
 
