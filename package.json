@@ -1,0 +1,39 @@
+{
+  "name": "cambaz",
+  "version": "0.0.1-init",
+  "description": "class based frontend framework",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "webpack-dev-server --open",
+    "build": "webpack",
+    "test": "xdg-open examples/index.html"
+  },
+  "dependencies": {
+    "copy-webpack-plugin": "^11.0.0",
+    "html-webpack-plugin": "^5.5.3",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.2.2",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/saracalihan/cambaz.git"
+  },
+  "keywords": [
+    "frontend",
+    "js",
+    "javascript",
+    "html",
+    "framework",
+    "frontend",
+    "framework"
+  ],
+  "author": "Alihan SARAC <saracalihan@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/saracalihan/cambaz/issues"
+  },
+  "homepage": "https://github.com/saracalihan/cambaz#readme"
+}
