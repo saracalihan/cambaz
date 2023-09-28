@@ -9,29 +9,45 @@ const ReservedComponentKeys = {
 	render: 'render'
 }
 
+interface ProxyDataType {
+	[key: string | symbol]: any
+	value: any;
+}
+
 class Component {
+	[key: string | symbol]: any;
 	html: HTMLElement;
-	data: any = {};
+
 	constructor() {
 
 		// chech component has reserved keys
 
 		// this.html = this.render();
-		this.html = document.createElement('div');
+		this.html = document.createElement('div'); 
 
-		this.data = new Proxy(this.data, {
-			get(target, key) {
-				return target[key]
-			},
-			set(target, key, value) {
-				target[key] = value;
-				console.log(arguments);
+		let props = this.data();
+		for (const key in props) {
+			this[key] = new Proxy({ value: props[key], toPrimitive() { return this.value } } as ProxyDataType, {
+				get(target, key) {
+					let data = undefined;
+					if (typeof key === 'symbol') {
+						data = target.toPrimitive;
+					} else {
+						data = key === 'value' ? target.value : target.value[key]()
+					}
+					console.log('get', { type: typeof key, target, key, data });
+					return data;
+				},
+				set(target, key, value) {
+					console.log(arguments);
+					target[key].value = value;
 
-				App.rerender();
-				return true
-			}
-		});
-
+					App.rerender();
+					return true
+				}
+			});
+		}
+		console.log(this);
 
 	}
 
@@ -73,18 +89,19 @@ class Component {
 	}
 
 	#replaceValues(code: string): string {
-		const regex = /{{(.*?)}}/g; // "{{" ve "}}" arasındaki her şeyi bulan bir regex
+		const regex = /{{(.*?)}}/g;
 		const propNames = [];
 		let match;
 
 		while ((match = regex.exec(code)) !== null) {
-			// Her eşleşen ifadeyi işle ve içeriğini diziye ekle
 			propNames.push(match[1]);
 		}
 
 		propNames.forEach(prop => {
 			//@ts-ignore
-			code = code.replaceAll(`{{${prop}}}`, this.data[prop.trim()])
+			console.log({ prop, t: this, tp: this[prop.trim()] });
+
+			code = code.replaceAll(`{{${prop}}}`, this[prop.trim()])
 		});
 		return code;
 	}
@@ -106,6 +123,43 @@ class AppComponent extends Component {
 		console.log('increseCount girdi')
 		this.data.count++;
 
+
+	}
+
+	goToAbout() {
+		App.goTo('/about')
+	}
+
+	goToHome() {
+		App.goTo('/home')
+	}
+	template() {
+		return `
+      <h1>Welcome To Cambaz</h1>
+      <p> count is <strong> {{ count }} </strong> </p>
+      <button clicked="increseCount"> count++ </button>
+			<button clicked="goToAbout"> About </button>
+      <button clicked="goToHome"> Home </button>
+    `;
+	}
+};
+
+
+class AppComponent2 extends Component {
+
+	constructor() {
+		super();
+	}
+
+	data() {
+		return {
+			count: 25
+		}
+	}
+
+	increseCount() {
+		console.log('increseCount girdi')
+		console.log(this);
 	}
 
 	goToAbout() {
@@ -240,6 +294,6 @@ window.onload = () => {
 			path: '/about',
 			component: About,
 		},])
-		App.init('app', AppComponent);
+		App.init('app', AppComponent2);
 	}, 100)
 }
